@@ -7,13 +7,10 @@ import com.xuecheng.framework.domain.cms.request.QueryPageRequest;
 import com.xuecheng.framework.model.response.CommonCode;
 import com.xuecheng.framework.model.response.QueryResponseResult;
 import com.xuecheng.framework.model.response.QueryResult;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @program: XcEduCode
@@ -35,9 +32,20 @@ public class PageServiceImpl implements PageService {
     * @Date: 2019/5/18
     */
     public QueryResponseResult findList(int page, int size, QueryPageRequest queryPageRequest) {
+        ExampleMatcher exampleMatcher = ExampleMatcher.matching().withMatcher("pageAliase", ExampleMatcher.GenericPropertyMatchers.contains());
+        CmsPage cmsPage = new CmsPage();
+        if (StringUtils.isNotEmpty(queryPageRequest.getSiteId())){
+            cmsPage.setSiteId(queryPageRequest.getSiteId());
+        }
+        if (StringUtils.isNotEmpty(queryPageRequest.getPageAliase())){
+            cmsPage.setPageAliase(queryPageRequest.getPageAliase());
+        }
+        //创建条件实例
+        Example<CmsPage> example = Example.of(cmsPage, exampleMatcher);
         if (queryPageRequest == null){
             queryPageRequest = new QueryPageRequest();
         }
+
         if (page<=0){
             page = 1;
         }
@@ -45,9 +53,9 @@ public class PageServiceImpl implements PageService {
             size = 20;
         }
         //分页对象
-        Pageable pageable = new PageRequest(page,size);
+        Pageable pageable = new PageRequest(page-1,size);
         //分页查询
-        Page<CmsPage> all = cmsPageRepository.findAll(pageable);
+        Page<CmsPage> all = cmsPageRepository.findAll(example,pageable);
         QueryResult<CmsPage> cmsPageQueryResult = new QueryResult<CmsPage>();
         cmsPageQueryResult.setList(all.getContent());
         cmsPageQueryResult.setTotal(all.getTotalElements());
