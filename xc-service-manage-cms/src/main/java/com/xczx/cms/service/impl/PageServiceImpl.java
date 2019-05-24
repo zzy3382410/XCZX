@@ -4,6 +4,7 @@ import com.xczx.cms.dao.CmsPageRepository;
 import com.xczx.cms.service.PageService;
 import com.xuecheng.framework.domain.cms.CmsPage;
 import com.xuecheng.framework.domain.cms.request.QueryPageRequest;
+import com.xuecheng.framework.domain.cms.response.CmsPageResult;
 import com.xuecheng.framework.model.response.CommonCode;
 import com.xuecheng.framework.model.response.QueryResponseResult;
 import com.xuecheng.framework.model.response.QueryResult;
@@ -61,5 +62,20 @@ public class PageServiceImpl implements PageService {
         cmsPageQueryResult.setTotal(all.getTotalElements());
         //返回结果
         return new QueryResponseResult(CommonCode.SUCCESS,cmsPageQueryResult);
+    }
+
+    @Override
+    public CmsPageResult add(CmsPage cmsPage) {
+        //校验页面是否存在
+        CmsPage cmsPage1 = cmsPageRepository.findByPageNameAndSiteIdAndPageWebPath(cmsPage.getPageName(),cmsPage.getSiteId(),cmsPage.getPageWebPath());
+        if (cmsPage1==null){
+            cmsPage.setPageId(null);
+            cmsPage.setPageId(null);
+            cmsPageRepository.save(cmsPage);
+            //返回结果
+            CmsPageResult cmsPageResult = new CmsPageResult(CommonCode.SUCCESS, cmsPage);
+            return cmsPageResult;
+        }
+        return new CmsPageResult(CommonCode.FAIL,null);
     }
 }
