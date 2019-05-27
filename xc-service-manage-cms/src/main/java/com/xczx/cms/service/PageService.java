@@ -15,4 +15,8 @@ public interface PageService {
     QueryResponseResult findList(int page, int size , QueryPageRequest queryPageRequest);
 
     CmsPageResult add(CmsPage cmsPage);
+
+    CmsPage findById(String id);
+
+    CmsPageResult update(String id, CmsPage cmsPage);
 }

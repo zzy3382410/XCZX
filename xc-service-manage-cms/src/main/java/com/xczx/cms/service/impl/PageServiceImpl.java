@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * @program: XcEduCode
  * @description:
@@ -77,5 +79,35 @@ public class PageServiceImpl implements PageService {
             return cmsPageResult;
         }
         return new CmsPageResult(CommonCode.FAIL,null);
+    }
+
+    @Override
+    public CmsPageResult update(String id, CmsPage cmsPage) {
+        //根据id 查询页面信息
+        CmsPage one = this.findById(id);
+        if (one !=null ){
+            one.setTemplateId(cmsPage.getTemplateId());
+            one.setSiteId(cmsPage.getSiteId());
+            one.setPageAliase(cmsPage.getPageAliase());
+            one.setPageName(cmsPage.getPageName());
+            one.setPageWebPath(cmsPage.getPageWebPath());
+            one.setPagePhysicalPath(cmsPage.getPagePhysicalPath());
+            CmsPage save = cmsPageRepository.save(one);
+            if (save != null){
+                //返回成功
+                CmsPageResult cmsPageResult = new CmsPageResult(CommonCode.SUCCESS, save);
+                return cmsPageResult;
+            }
+        }
+        return new CmsPageResult(CommonCode.FAIL,null);
+    }
+
+    @Override
+    public CmsPage findById(String id) {
+        Optional<CmsPage> optional = cmsPageRepository.findById(id);
+        if (optional.isPresent()){
+            return optional.get();
+        }
+        return null;
     }
 }

@@ -34,4 +34,18 @@ public class CmsPageController implements CmsPageControllerApi {
     public CmsPageResult add(@RequestBody CmsPage cmsPage) {
         return pageService.add(cmsPage);
     }
+
+    @Override
+    @RequestMapping("/get/{id}")
+    public CmsPage findById(@PathVariable("id") String id) {
+
+        return pageService.findById(id);
+    }
+
+    @Override
+    @RequestMapping("/edit/{id}")
+    public CmsPageResult edit(@PathVariable("id") String id,@RequestBody CmsPage cmsPage) {
+
+        return pageService.update(id,cmsPage);
+    }
 }
