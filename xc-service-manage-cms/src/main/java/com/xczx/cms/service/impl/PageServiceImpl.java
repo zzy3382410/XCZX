@@ -4,10 +4,13 @@ import com.xczx.cms.dao.CmsPageRepository;
 import com.xczx.cms.service.PageService;
 import com.xuecheng.framework.domain.cms.CmsPage;
 import com.xuecheng.framework.domain.cms.request.QueryPageRequest;
+import com.xuecheng.framework.domain.cms.response.CmsCode;
 import com.xuecheng.framework.domain.cms.response.CmsPageResult;
+import com.xuecheng.framework.exception.ExceptionCast;
 import com.xuecheng.framework.model.response.CommonCode;
 import com.xuecheng.framework.model.response.QueryResponseResult;
 import com.xuecheng.framework.model.response.QueryResult;
+import com.xuecheng.framework.model.response.ResponseResult;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -35,13 +38,21 @@ public class PageServiceImpl implements PageService {
     * @Date: 2019/5/18
     */
     public QueryResponseResult findList(int page, int size, QueryPageRequest queryPageRequest) {
-        ExampleMatcher exampleMatcher = ExampleMatcher.matching().withMatcher("pageAliase", ExampleMatcher.GenericPropertyMatchers.contains());
+        ExampleMatcher exampleMatcher = ExampleMatcher.matching()
+                .withMatcher("pageAliase", ExampleMatcher.GenericPropertyMatchers.contains())
+                .withMatcher("pageName", ExampleMatcher.GenericPropertyMatchers.contains());
         CmsPage cmsPage = new CmsPage();
         if (StringUtils.isNotEmpty(queryPageRequest.getSiteId())){
             cmsPage.setSiteId(queryPageRequest.getSiteId());
         }
         if (StringUtils.isNotEmpty(queryPageRequest.getPageAliase())){
             cmsPage.setPageAliase(queryPageRequest.getPageAliase());
+        }
+        if (StringUtils.isNotEmpty(queryPageRequest.getPageName())){
+            cmsPage.setPageAliase(queryPageRequest.getPageName());
+        }
+        if (StringUtils.isNotEmpty(queryPageRequest.getPageType())){
+            cmsPage.setPageAliase(queryPageRequest.getPageType());
         }
         //创建条件实例
         Example<CmsPage> example = Example.of(cmsPage, exampleMatcher);
@@ -70,15 +81,25 @@ public class PageServiceImpl implements PageService {
     public CmsPageResult add(CmsPage cmsPage) {
         //校验页面是否存在
         CmsPage cmsPage1 = cmsPageRepository.findByPageNameAndSiteIdAndPageWebPath(cmsPage.getPageName(),cmsPage.getSiteId(),cmsPage.getPageWebPath());
-        if (cmsPage1==null){
+        if (cmsPage1 != null){
+            ExceptionCast.cast(CmsCode.CMS_ADDPAGE_EXISTSNAME);
+        }
             cmsPage.setPageId(null);
             cmsPage.setPageId(null);
             cmsPageRepository.save(cmsPage);
             //返回结果
             CmsPageResult cmsPageResult = new CmsPageResult(CommonCode.SUCCESS, cmsPage);
             return cmsPageResult;
+    }
+
+    @Override
+    public ResponseResult delete(String id) {
+        CmsPage one = this.findById(id);
+        if (one!=null){
+            cmsPageRepository.deleteById(id);
+            return new ResponseResult(CommonCode.SUCCESS);
         }
-        return new CmsPageResult(CommonCode.FAIL,null);
+        return new ResponseResult(CommonCode.FAIL);
     }
 
     @Override

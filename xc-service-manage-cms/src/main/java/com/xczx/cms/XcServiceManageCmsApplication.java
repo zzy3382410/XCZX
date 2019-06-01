@@ -9,6 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 @EntityScan("com.xuecheng.framework.domain.cms")
 @ComponentScan(basePackages = {"com.xuecheng.api"})
 @ComponentScan(basePackages={"com.xczx.cms"})
+@ComponentScan(basePackages={"com.xuecheng.framework"})
 public class XcServiceManageCmsApplication {
 
     public static void main(String[] args) {
